@@ -49,46 +49,81 @@ section .data
 section .data	
 	last: dq link
 	test_word: db "-", 0
-	test: db "hell", 0
+	
+	program_stub: dq 0
+	xt_interpreter: dq .interpreter
+	.interpreter: dq interpreter_loop
+
+	current_word: times 256 db 0x0
+	erorr: db "Error! Word not found", 0
+
+	test: db "test!", 0
 
 
 
-
-
-%define w r12
-%define pc r13
-%define rstack r14
+%define w r15
+%define pc r14
+%define rstack r13
 
 extern find
 extern print_uint
 extern print_string
-
+extern read_word
+extern parse_int
+extern cfa
 
 section .code
 global _start
 
+next:
+	mov w, pc
+	add pc, 8 ; предполагая размер ячейки 8 байт
+	mov w, [w]
 
-_start:
-	mov rax, w_minus
-	mov [last], rax
+	jmp [w]
 
-	mov rdi, test_word
 
-	call find
+
+interpreter_loop:
+	mov rdi, current_word
+	mov rsi, 256
+	call read_word 
+
+	cmp rdx, 0
+	je .end
 
 	mov rdi, rax
-	push rdi
-	add rdi, 8
-	call print_string
-	pop rdi
+	call find
 
+	cmp rax, 0
+	je .not_word
+		mov rdi, rax
+		call cfa
 
+		mov [program_stub], rax
+		mov pc, program_stub
+		jmp next
 
-	mov rdi, [rdi]
-	add rdi, 8
-	call print_string
+	.not_word:
+		mov rdi, current_word
+		call parse_int
 
+		cmp rdx, 0
+		je .not_found
+			push rax
+			jmp interpreter_loop
+		.not_found
+			mov rdi, erorr
+			call print_string
+			jmp interpreter_loop
+	.end
+		mov rax, 60
+		mov rdi, 0
+		syscall
 
+_start:
+	mov pc, xt_interpreter
+	jmp next
 
 	
 	mov rax, 60
