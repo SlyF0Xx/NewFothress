@@ -128,3 +128,21 @@ native "number", number
 	push rax
 
 	jmp next
+
+native "mem", memory
+	push memory
+
+	jmp next
+
+native "!", write_mem
+	pop rax				;address
+	pop rdx				;data
+	mov [rax], rdx
+
+	jmp next
+
+native "@", read_mem
+	pop rax
+	push qword[rax]
+
+	jmp next

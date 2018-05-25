@@ -58,6 +58,7 @@ section .data
 	erorr: db "Error! Word not found", 0
 
 	stack: dq 0
+	memory: times 65536 dq 0x0
 
 	test: db "test!", 0
 
