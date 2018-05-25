@@ -66,3 +66,5 @@ native "not", not
 		push 1
 		jmp next
 
+	push rax
+	jmp next
