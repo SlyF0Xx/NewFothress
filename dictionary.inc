@@ -105,3 +105,26 @@ native ".", print_num
 	call print_newline
 
 	jmp next
+
+native "key", key
+	call read_char
+	push rax
+
+	jmp next
+
+native "emit", emit
+	pop rdi
+	call print_char
+	call print_newline
+
+	jmp next
+
+native "number", number
+	mov rdi, current_word
+	mov rsi, 256
+	call read_word 
+	mov rdi, current_word
+	call parse_int
+	push rax
+
+	jmp next

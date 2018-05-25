@@ -75,6 +75,8 @@ extern parse_int
 extern cfa
 extern print_int
 extern print_newline
+extern read_char
+extern print_char
 
 section .code
 global _start
