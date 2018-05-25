@@ -68,3 +68,40 @@ native "not", not
 
 	push rax
 	jmp next
+
+native "rot", rot
+	pop rax		;3
+	pop rdx		;2
+	pop rdi		;1
+
+	push rdx	;2
+	push rax	;3
+	push rdi	;1
+
+	jmp next
+
+native "swap", swap
+	pop rax		;2
+	pop rdx		;1
+
+	push rax	;2
+	push rdx	;1
+
+	jmp next
+
+native "dup", dup
+	push qword[rsp]
+
+	jmp next
+
+native "drop", drop
+	pop rax
+
+	jmp next
+
+native ".", print_num
+	pop rdi
+	call print_int
+	call print_newline
+
+	jmp next
