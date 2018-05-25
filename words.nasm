@@ -57,6 +57,8 @@ section .data
 	current_word: times 256 db 0x0
 	erorr: db "Error! Word not found", 0
 
+	stack: dq 0
+
 	test: db "test!", 0
 
 
@@ -71,6 +73,8 @@ extern print_string
 extern read_word
 extern parse_int
 extern cfa
+extern print_int
+extern print_newline
 
 section .code
 global _start
@@ -122,6 +126,8 @@ interpreter_loop:
 		syscall
 
 _start:
+	mov [stack], rsp
+
 	mov pc, xt_interpreter
 	jmp next
 
