@@ -11,10 +11,14 @@ extern print_char
 
 global last
 
+%define Immediate 1
+%define Branch 2
+
 section .data
+	%include "macro.inc"
+	%include "compiler_words.inc"
 	%include "dictionary.inc"
 	%include "colon.inc"
-	%include "macro.inc"
 
 
 section .data	
@@ -32,6 +36,14 @@ section .data
 	memory: times 65536 dq 0x0
 	return_stack: times 256 dq 0x0
 	xt_exit: dq exit
+
+	test: db "test", 0
+	test_field: times 256 db 0
+
+	words: times 65536 dq 0x0
+	here: dq words
+	prev_word: db 0
+	state: db 0
 
 
 section .code
@@ -79,9 +91,24 @@ interpreter_loop:
 		mov rdi, rax
 		call cfa
 
-		mov [program_stub], rax
-		mov pc, program_stub
-		jmp next
+		cmp byte[state], 0					; if now compile part
+		je .exec
+				;	compile part
+			mov dl, byte[rax - 1]
+			mov [prev_word], dl
+
+			cmp rdx, Immediate				; if this word - Immediate
+			je .exec
+				mov rdx, [here]
+				mov [rdx], rax
+				add qword[here], 8
+		
+				jmp interpreter_loop
+		.exec:
+				; interpret part
+			mov [program_stub], rax
+			mov pc, program_stub
+			jmp next
 
 	.not_word:
 		mov rdi, current_word
@@ -89,8 +116,34 @@ interpreter_loop:
 
 		cmp rdx, 0
 		je .not_found
-			push rax
-			jmp interpreter_loop
+			cmp byte[state], 0					; if now compile part
+			je .exec_num
+					;	compile part with num
+				cmp byte[prev_word], Branch
+				je .branch
+					mov rdx, [here]
+					mov qword[rdx], xt_num
+					add qword[here], 8
+					mov rdx, [here]
+					mov [rdx], rax
+					add qword[here], 8
+
+					jmp interpreter_loop
+				.branch:
+					mov rdx, [here]
+					mov [rdx], rax
+					add qword[here], 8
+
+					mov byte[prev_word], 0
+
+					jmp interpreter_loop
+			.exec_num:
+					; interpreter part with num
+				push rax
+				jmp interpreter_loop
+
+
+
 		.not_found
 			mov rdi, erorr
 			call print_string
