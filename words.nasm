@@ -1,56 +1,21 @@
-%define link 0
-%macro update_link 0
-%%link: dq link
-%define link %%link
-%endmacro
-
-
-%macro native 3
-section .data
-w_%+ %2:
-	update_link
-	db %1, 0
-	db %3
-xt_%+ %2:
-	dq i_%+ %2 
-
-section .code
-	i_%+ %2:
-%endmacro
-
-
-%macro native 2
-	native %1, %2, 0
-%endmacro
-
-
-
-%macro colon 3
-section .data
-w_%+ %2:
-	update_link
-	db %1, 0
-	db %3
-xt_%+ %2:
-	dq docol
-
-%endmacro
-
-%macro colon 2
-	colon %1, %2, 0
-%endmacro
-
+extern find
+extern print_uint
+extern print_string
+extern read_word
+extern parse_int
+extern cfa
+extern print_int
+extern print_newline
+extern read_char
+extern print_char
 
 global last
 
 section .data
 	%include "dictionary.inc"
 	%include "colon.inc"
+	%include "macro.inc"
 
-
-%define w r15
-%define pc r14
-%define rstack r13
 
 section .data	
 	last: dq link
@@ -68,17 +33,6 @@ section .data
 	return_stack: times 256 dq 0x0
 	xt_exit: dq exit
 
-
-extern find
-extern print_uint
-extern print_string
-extern read_word
-extern parse_int
-extern cfa
-extern print_int
-extern print_newline
-extern read_char
-extern print_char
 
 section .code
 global _start
