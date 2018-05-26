@@ -54,7 +54,7 @@ native "<", less
 	pop rax
 	pop rdx
 	cmp rdx, rax
-	ja .less
+	jb .less
 		push 0
 		jmp next
 	.less:
