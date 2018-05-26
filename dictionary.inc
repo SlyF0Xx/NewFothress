@@ -39,6 +39,28 @@ native "/", div
 	push rax
 	jmp next
 
+native "=", equals
+	pop rax
+	pop rdx
+	cmp rax, rdx
+	je .eq
+		push 0
+		jmp next
+	.eq:
+		push 1
+		jmp next	
+
+native "<", less
+	pop rax
+	pop rdx
+	cmp rdx, rax
+	ja .less
+		push 0
+		jmp next
+	.less:
+		push 1
+		jmp next	
+
 native "and", and
 	pop rax
 	pop rdx
