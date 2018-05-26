@@ -30,7 +30,7 @@ section .data
 w_%+ %2:
 	update_link
 	db %1, 0
-	%3
+	db %3
 xt_%+ %2:
 	dq docol
 
@@ -45,6 +45,12 @@ global last
 
 section .data
 	%include "dictionary.inc"
+	%include "colon.inc"
+
+
+%define w r15
+%define pc r14
+%define rstack r13
 
 section .data	
 	last: dq link
@@ -59,14 +65,9 @@ section .data
 
 	stack: dq 0
 	memory: times 65536 dq 0x0
+	return_stack: times 256 dq 0x0
+	xt_exit: dq exit
 
-	test: db "test!", 0
-
-
-
-%define w r15
-%define pc r14
-%define rstack r13
 
 extern find
 extern print_uint
@@ -81,6 +82,23 @@ extern print_char
 
 section .code
 global _start
+
+docol:
+	mov [rstack], pc
+	add rstack, 8
+
+	mov pc, w
+	add pc, 8
+
+	jmp next
+
+
+exit:
+	sub rstack, 8
+	mov pc, [rstack]
+
+	jmp next
+
 
 next:
 	mov w, pc
@@ -129,6 +147,9 @@ interpreter_loop:
 		syscall
 
 _start:
+	mov rstack, return_stack
+	;mov rstack, end_of_stack - 8
+	
 	mov [stack], rsp
 
 	mov pc, xt_interpreter
