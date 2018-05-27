@@ -1,24 +1,99 @@
- native ":", colon
+native "docol", docol
+	mov [rstack], pc
+	add rstack, 8
+
+	mov pc, w
+	add pc, 8
+
+	jmp next
+
+native "push_docol", push_docol
+	push i_docol
+
+	jmp next
+
+colon "'", find
+	dq xt_tmp_str
+	dq xt_dup
+	dq xt_read_word
+	dq xt_drop
+	dq xt_find_word
+	dq xt_dup
+	dq xt_branch_if
+	dq 1
+	dq xt_cfa
+	dq xt_exit
+
+native "Immediate", imm_flag
+	push Immediate
+
+	jmp next
+
+native "create", create
  	mov rax, [here]
 	mov rdx, [last]
 	mov [rax], rdx					;write link to word
 	mov [last], rax					;update link
 
-
 	add qword[here], 8				;8 - link 
-	mov rdi, [here] 				;name
-	mov rsi, 256
-	call read_word
 
-	add [here], rdx
-	add qword[here], 10 			; byte - flag byte - terminator 8 - docol
+	mov rdi, [rsp]
+	call string_length
+
+	pop rdi							; name
+	push rax
+
+	mov rsi, [here]
+	call string_copy
+
+	pop rax
+
+	add [here], rax
+	add qword[here], 2 				; byte - flag byte - terminator 8 - docol
 	mov rax, [here]
-	mov byte[rax - 9], 0 		;flag
-	mov qword[rax - 8], docol
-
-	mov byte[state], 1
+	
+	pop rdi							; flag (actualy - 1 byte)
+	mov byte[rax - 1], dil 		
 
 	jmp next
+
+native ",", add_xt
+	pop rax
+	add qword[here], 8
+	mov rdx, [here]
+	mov [rdx - 8], rax
+
+	jmp next
+
+native "c,", add_char
+	mov al, [rsp]
+	add rsp, 1
+
+	add qword[here], 8
+	mov rdx, [here]
+	mov [rdx - 8], al
+
+	jmp next
+
+colon ":", colon
+	dq xt_imm_flag
+	dq xt_tmp_str
+	dq xt_read_word
+	dq xt_drop
+	dq xt_tmp_str
+	dq xt_create
+
+	dq xt_push_docol
+	dq xt_add_xt
+
+	dq xt_state
+	dq xt_num
+	dq 1
+	dq xt_swap
+	dq xt_write_mem
+
+	dq xt_exit
+
 
 native ";", end, Immediate
 	mov rdx, xt_exit

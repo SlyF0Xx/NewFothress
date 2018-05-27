@@ -8,6 +8,9 @@ extern print_int
 extern print_newline
 extern read_char
 extern print_char
+extern string_length
+extern print_string_with_length
+extern string_copy
 
 global last
 
@@ -35,6 +38,7 @@ section .data
 	stack: dq 0
 	memory: times 65536 dq 0x0
 	return_stack: times 256 dq 0x0
+	top_stack: dq return_stack
 	xt_exit: dq exit
 
 	test: db "test", 0
@@ -48,15 +52,6 @@ section .data
 
 section .code
 global _start
-
-docol:
-	mov [rstack], pc
-	add rstack, 8
-
-	mov pc, w
-	add pc, 8
-
-	jmp next
 
 
 exit:
@@ -144,11 +139,11 @@ interpreter_loop:
 
 
 
-		.not_found
+		.not_found:
 			mov rdi, erorr
 			call print_string
 			jmp interpreter_loop
-	.end
+	.end:
 		mov rax, 60
 		mov rdi, 0
 		syscall

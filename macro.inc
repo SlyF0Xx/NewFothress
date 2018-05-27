@@ -32,7 +32,7 @@ w_%+ %2:
 	db %1, 0
 	db %3
 xt_%+ %2:
-	dq docol
+	dq i_docol
 
 %endmacro
 
