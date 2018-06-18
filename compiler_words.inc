@@ -12,7 +12,7 @@ native "push_docol", push_docol
 
 	jmp next
 
-colon "'", find
+colon "'", find, Immediate
 	dq xt_tmp_str
 	dq xt_dup
 	dq xt_read_word
@@ -20,8 +20,16 @@ colon "'", find
 	dq xt_find_word
 	dq xt_dup
 	dq xt_branch_if
-	dq 1
-	dq xt_cfa
+	dq 8
+		dq xt_cfa
+		dq xt_state
+		dq xt_branch_if
+		dq 4 
+			dq xt_num		;	
+			dq xt_num		;	create's dq xt_lit
+			dq xt_add_xt	;
+
+			dq xt_add_xt
 	dq xt_exit
 
 native "Immediate", imm_flag

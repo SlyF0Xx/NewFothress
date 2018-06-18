@@ -32,8 +32,8 @@ native "*", multiply
 native "/", div
 	pop r9
 	pop rax
-	mov rdx, 0
-
+	cmp rax, 0
+	cqo
 	idiv r9
 
 	push rax
@@ -205,19 +205,24 @@ native "count", strlen
 
 native "c!", write_char
 	pop rax				; address
+	pop rdx				; data
+
+	mov [rax], rdx
 	
-	mov dl, [rsp] 		; data
-	add rsp, 1
-	mov [rax], dl
+;	mov dl, [rsp] 		; data
+;	add rsp, 1
+;	mov [rax], dl
 
 	jmp next
 
 native "c@", out_char
 	pop rax				; address
 
-	sub rsp, 1
-	mov dl, [rax]
-	mov [rsp], dl
+	push qword[rax]
+
+;	sub rsp, 1
+;	mov dl, [rax]
+;	mov [rsp], dl
 
 	jmp next
 
